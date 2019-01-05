@@ -1,0 +1,27 @@
+﻿Editor: http://asciiflow.com/
+
+
+  +--------------+       +--------------+        +--------------+
+  |    User      |  +--> |     Plan     |   +--> |     Cost     |
+  +--------------+  |    +--------------+   |    +--------------+
+  | UserId       |  |    | PlanId       |   |    | CostId       |
+  | Name         |  |    | Name         |   |    | Name         |
+  | Login        |  |    | Start        |   |    | ~Plan        |
+  | Password     |  |    | End          |   |    | *CostDetails +----+
+  | *Plans       +--+    | Balance      |   |    +--------------+    |
+  | *Spends      +--+    | ~User        |   |                        |
++-+ *PlanMembers |  |    | *Costs       +---+                        |
+| +--------------+  | +--+ *PlanMembers |                            |
+|                   | |  +--------------+                            |
+++--------------------+                                              |
+ |                  |    +--------------+        +--------------+    |
+ |                  +--> |    Spend     |    +-> |  CostDetail  | <--+
+ |                       +--------------+    |   +--------------+
+ |   +--------------+    | SpendId      |    |   | CostDetailId |
+ +-> |  PlanMember  |    | OrderNumber  |    |   | Date         |
+     +--------------+    | Value        |    |   | Value        |
+     | PlanMemberId |    | Commend      |    |   | *Spends      |
+     | *Users       |    | ~User        |    |   | ~Cost        |
+     | ~Plan        |    | *CostDetails +----+   +--------------+
+     +--------------+    |              |
+                         +--------------+
