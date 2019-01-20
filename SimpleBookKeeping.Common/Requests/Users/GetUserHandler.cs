@@ -6,7 +6,7 @@ using Common.Extensions;
 using Database.Models;
 using MediatR;
 
-namespace Common.Requests.Users
+namespace SimpleBookKeeping.Common.Requests.Users
 {
     public class GetUserHandler : IRequestHandler<GetUser, UserDto>
     {

@@ -3,13 +3,13 @@ using AutoFixture;
 using AutoFixture.AutoMoq;
 using AutoMapper;
 using Common.DTOs;
-using Common.Requests.Users;
 using Database.Models;
 using Microsoft.EntityFrameworkCore;
 using Moq;
+using SimpleBookKeeping.Common.Requests.Users;
 using Xunit;
 
-namespace CommonTests
+namespace SimpleBookKeeping.CommonTests
 {
     public class UnitTest1
     {
@@ -32,7 +32,7 @@ namespace CommonTests
             context.SaveChanges();
 
             GetUserHandler handler = new GetUserHandler(context, mapper.Object);
-            var result = handler.Handle(new GetUser { UserId = 1 }, CancellationToken.None).Result;
+            var result = handler.Handle(new GetUser(1), CancellationToken.None).Result;
 
             Assert.NotNull(result);
             Assert.Equal(result.UserId, user.UserId);

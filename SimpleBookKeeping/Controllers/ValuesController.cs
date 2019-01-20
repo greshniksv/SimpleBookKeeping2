@@ -1,8 +1,8 @@
 ﻿using System.Collections.Generic;
 using System.Threading.Tasks;
-using Common.Requests.Users;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
+using SimpleBookKeeping.Common.Requests.Users;
 
 namespace SimpleBookKeeping.Controllers
 {
@@ -28,7 +28,7 @@ namespace SimpleBookKeeping.Controllers
         [HttpGet("{id}")]
         public async Task<IActionResult> Get(int id)
         {
-            var response = await mediator.Send(new GetUser() { UserId = id });
+            var response = await mediator.Send(new GetUser(id));
             return Ok(new { response });
         }
 

@@ -1,8 +1,9 @@
-﻿using System.Reflection;
+﻿using System;
+using System.Reflection;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using AutoMapper;
-using Common.Requests.Users;
 using Database.Models;
 using MediatR;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -13,6 +14,8 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.IdentityModel.Tokens;
+using SimpleBookKeeping.Common.Helpers;
+using SimpleBookKeeping.Common.Requests.Users;
 using SimpleBookKeeping.Settings;
 
 namespace SimpleBookKeeping
@@ -37,6 +40,7 @@ namespace SimpleBookKeeping
             var appSettings = appSettingsSection.Get<AppSettings>();
             var key = Encoding.ASCII.GetBytes(appSettings.Secret);
 
+            services.AddCors();
             services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_1);
             services.AddMediatR(typeof(Startup));
             services.AddMediatR(Assembly.GetAssembly(typeof(GetUser)));
@@ -56,14 +60,15 @@ namespace SimpleBookKeeping
                     {
                         OnTokenValidated = context =>
                         {
-                            //var userService = context.HttpContext.RequestServices.GetRequiredService<IMediator>();
-                            //var userId = int.Parse(context.Principal.Identity.Name);
-                            //var user = userService.GetById(userId);
-                            //if (user == null)
-                            //{
-                            //    // return unauthorized if user no longer exists
-                            //    context.Fail("Unauthorized");
-                            //}
+                            var helper = context.HttpContext.
+                                RequestServices.GetRequiredService<IUserExistHelper>();
+                            var userId = int.Parse(context.Principal.Identity.Name);
+
+                            if (!helper.IsUserExist(userId))
+                            {
+                                // return unauthorized if user no longer exists
+                                context.Fail("Unauthorized");
+                            }
                             return Task.CompletedTask;
                         }
                     };
@@ -77,6 +82,8 @@ namespace SimpleBookKeeping
                         ValidateAudience = false
                     };
                 });
+
+            services.AddScoped<IUserExistHelper, UserExistHelper>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -86,6 +93,12 @@ namespace SimpleBookKeeping
             {
                 app.UseDeveloperExceptionPage();
             }
+
+            app.UseCors(x => x
+                .AllowAnyOrigin()
+                .AllowAnyMethod()
+                .AllowAnyHeader()
+                .AllowCredentials());
 
             app.UseAuthentication();
             app.UseMvc();
