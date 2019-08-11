@@ -1,10 +1,11 @@
 ﻿using System.Collections.Generic;
+using Database.Models;
 
-namespace Database.Models
+namespace SimpleBookKeeping.Database.Models
 {
     public class User
     {
-        public int UserId { get; set; }
+        public int Id { get; set; }
         public string Login { get; set; }
         public string Password { get; set; }
 

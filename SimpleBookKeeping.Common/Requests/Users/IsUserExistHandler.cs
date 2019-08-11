@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
 using Database.Models;
 using MediatR;
+using SimpleBookKeeping.Database;
 
 namespace SimpleBookKeeping.Common.Requests.Users
 {

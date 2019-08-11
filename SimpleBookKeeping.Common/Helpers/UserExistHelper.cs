@@ -1,5 +1,5 @@
 ﻿using AutoMapper;
-using Database.Models;
+using SimpleBookKeeping.Database;
 
 namespace SimpleBookKeeping.Common.Helpers
 {

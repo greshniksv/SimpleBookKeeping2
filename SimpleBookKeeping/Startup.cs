@@ -9,13 +9,16 @@ using MediatR;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.SpaServices.ReactDevelopmentServer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.IdentityModel.Tokens;
 using SimpleBookKeeping.Common.Helpers;
 using SimpleBookKeeping.Common.Requests.Users;
+using SimpleBookKeeping.Database;
 using SimpleBookKeeping.Settings;
 
 namespace SimpleBookKeeping
@@ -45,6 +48,13 @@ namespace SimpleBookKeeping
             services.AddMediatR(typeof(Startup));
             services.AddMediatR(Assembly.GetAssembly(typeof(GetUser)));
             services.AddAutoMapper();
+            services.AddHttpContextAccessor();
+
+            // In production, the React files will be served from this directory
+            services.AddSpaStaticFiles(configuration =>
+            {
+                configuration.RootPath = "ClientApp/build";
+            });
 
             services.AddDbContext<DatabaseContext>
                 (options => options.UseSqlServer(Configuration.GetConnectionString("Database")));
@@ -94,6 +104,9 @@ namespace SimpleBookKeeping
                 app.UseDeveloperExceptionPage();
             }
 
+            app.UseStaticFiles();
+            app.UseSpaStaticFiles();
+
             app.UseCors(x => x
                 .AllowAnyOrigin()
                 .AllowAnyMethod()
@@ -102,6 +115,16 @@ namespace SimpleBookKeeping
 
             app.UseAuthentication();
             app.UseMvc();
+
+            app.UseSpa(spa =>
+            {
+                spa.Options.SourcePath = "ClientApp";
+
+                if (env.IsDevelopment())
+                {
+                    spa.UseReactDevelopmentServer(npmScript: "start");
+                }
+            });
         }
     }
 }

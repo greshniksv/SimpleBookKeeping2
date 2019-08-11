@@ -4,14 +4,15 @@ using System.Security.Claims;
 using System.Text;
 using System.Threading.Tasks;
 using AutoMapper;
-using Common.DTOs;
 using Database.Models;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
+using SimpleBookKeeping.Common.DTOs;
 using SimpleBookKeeping.Common.Requests.Users;
+using SimpleBookKeeping.Database.Models;
 using SimpleBookKeeping.Models;
 using SimpleBookKeeping.Settings;
 
@@ -38,8 +39,7 @@ namespace SimpleBookKeeping.Controllers
         [Route("authenticate")]
         public async Task<IActionResult> Authenticate([FromBody]AuthModel userDto)
         {
-            var user = await mediator.Send(
-                new AuthenticateUser() { Login = userDto.Login, Password = userDto.Password });
+            var user = await mediator.Send(new GetAuthenticatedUser(userDto.Login, userDto.Password));
 
             if (user == null)
                 return BadRequest(new { message = "Username or password is incorrect" });

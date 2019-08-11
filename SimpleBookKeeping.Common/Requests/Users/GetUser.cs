@@ -1,5 +1,5 @@
-﻿using Common.DTOs;
-using MediatR;
+﻿using MediatR;
+using SimpleBookKeeping.Common.DTOs;
 
 namespace SimpleBookKeeping.Common.Requests.Users
 {

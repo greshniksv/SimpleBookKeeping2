@@ -1,4 +1,4 @@
-﻿namespace Common.DTOs
+﻿namespace SimpleBookKeeping.Common.DTOs
 {
     public class UserDto 
     {

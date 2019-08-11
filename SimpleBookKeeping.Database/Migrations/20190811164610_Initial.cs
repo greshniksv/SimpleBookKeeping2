@@ -2,9 +2,9 @@
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Migrations;
 
-namespace Database.Migrations
+namespace SimpleBookKeeping.Database.Migrations
 {
-    public partial class InitialCreate : Migration
+    public partial class Initial : Migration
     {
         protected override void Up(MigrationBuilder migrationBuilder)
         {
@@ -12,21 +12,21 @@ namespace Database.Migrations
                 name: "Users",
                 columns: table => new
                 {
-                    UserId = table.Column<int>(nullable: false)
+                    Id = table.Column<int>(nullable: false)
                         .Annotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn),
                     Login = table.Column<string>(nullable: true),
                     Password = table.Column<string>(nullable: true)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_Users", x => x.UserId);
+                    table.PrimaryKey("PK_Users", x => x.Id);
                 });
 
             migrationBuilder.CreateTable(
                 name: "Plans",
                 columns: table => new
                 {
-                    PlanId = table.Column<int>(nullable: false)
+                    Id = table.Column<int>(nullable: false)
                         .Annotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn),
                     Name = table.Column<string>(nullable: true),
                     Start = table.Column<DateTime>(nullable: false),
@@ -37,12 +37,12 @@ namespace Database.Migrations
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_Plans", x => x.PlanId);
+                    table.PrimaryKey("PK_Plans", x => x.Id);
                     table.ForeignKey(
                         name: "FK_Plans_Users_UserId",
                         column: x => x.UserId,
                         principalTable: "Users",
-                        principalColumn: "UserId",
+                        principalColumn: "Id",
                         onDelete: ReferentialAction.Restrict);
                 });
 
@@ -50,46 +50,46 @@ namespace Database.Migrations
                 name: "Costs",
                 columns: table => new
                 {
-                    CostId = table.Column<int>(nullable: false)
+                    Id = table.Column<int>(nullable: false)
                         .Annotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn),
                     Name = table.Column<string>(nullable: true),
                     Deleted = table.Column<bool>(nullable: false),
-                    PlanId = table.Column<int>(nullable: false)
+                    PlanId = table.Column<int>(nullable: true)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_Costs", x => x.CostId);
+                    table.PrimaryKey("PK_Costs", x => x.Id);
                     table.ForeignKey(
                         name: "FK_Costs_Plans_PlanId",
                         column: x => x.PlanId,
                         principalTable: "Plans",
-                        principalColumn: "PlanId",
-                        onDelete: ReferentialAction.Cascade);
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Restrict);
                 });
 
             migrationBuilder.CreateTable(
                 name: "PlanMembers",
                 columns: table => new
                 {
-                    PlanMemberId = table.Column<int>(nullable: false)
+                    Id = table.Column<int>(nullable: false)
                         .Annotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn),
                     UserId = table.Column<int>(nullable: true),
-                    PlanId = table.Column<int>(nullable: false)
+                    PlanId = table.Column<int>(nullable: true)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_PlanMembers", x => x.PlanMemberId);
+                    table.PrimaryKey("PK_PlanMembers", x => x.Id);
                     table.ForeignKey(
                         name: "FK_PlanMembers_Plans_PlanId",
                         column: x => x.PlanId,
                         principalTable: "Plans",
-                        principalColumn: "PlanId",
-                        onDelete: ReferentialAction.Cascade);
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Restrict);
                     table.ForeignKey(
                         name: "FK_PlanMembers_Users_UserId",
                         column: x => x.UserId,
                         principalTable: "Users",
-                        principalColumn: "UserId",
+                        principalColumn: "Id",
                         onDelete: ReferentialAction.Restrict);
                 });
 
@@ -97,50 +97,50 @@ namespace Database.Migrations
                 name: "CostsDetails",
                 columns: table => new
                 {
-                    CostDetailId = table.Column<int>(nullable: false)
+                    Id = table.Column<int>(nullable: false)
                         .Annotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn),
                     Date = table.Column<DateTime>(nullable: false),
                     Value = table.Column<int>(nullable: false),
                     Deleted = table.Column<bool>(nullable: false),
-                    CostId = table.Column<int>(nullable: false)
+                    CostId = table.Column<int>(nullable: true)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_CostsDetails", x => x.CostDetailId);
+                    table.PrimaryKey("PK_CostsDetails", x => x.Id);
                     table.ForeignKey(
                         name: "FK_CostsDetails_Costs_CostId",
                         column: x => x.CostId,
                         principalTable: "Costs",
-                        principalColumn: "CostId",
-                        onDelete: ReferentialAction.Cascade);
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Restrict);
                 });
 
             migrationBuilder.CreateTable(
                 name: "Spends",
                 columns: table => new
                 {
-                    SpendId = table.Column<int>(nullable: false)
+                    Id = table.Column<int>(nullable: false)
                         .Annotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn),
                     OrderNumber = table.Column<int>(nullable: false),
                     Value = table.Column<int>(nullable: false),
                     Comment = table.Column<string>(nullable: true),
                     UserId = table.Column<int>(nullable: true),
-                    CostDetailId = table.Column<int>(nullable: false)
+                    CostDetailId = table.Column<int>(nullable: true)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_Spends", x => x.SpendId);
+                    table.PrimaryKey("PK_Spends", x => x.Id);
                     table.ForeignKey(
                         name: "FK_Spends_CostsDetails_CostDetailId",
                         column: x => x.CostDetailId,
                         principalTable: "CostsDetails",
-                        principalColumn: "CostDetailId",
-                        onDelete: ReferentialAction.Cascade);
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Restrict);
                     table.ForeignKey(
                         name: "FK_Spends_Users_UserId",
                         column: x => x.UserId,
                         principalTable: "Users",
-                        principalColumn: "UserId",
+                        principalColumn: "Id",
                         onDelete: ReferentialAction.Restrict);
                 });
 

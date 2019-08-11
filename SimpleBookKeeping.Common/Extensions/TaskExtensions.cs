@@ -4,7 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using AutoMapper;
 
-namespace Common.Extensions
+namespace SimpleBookKeeping.Common.Extensions
 {
     public static class TaskExtensions
     {
@@ -26,12 +26,12 @@ namespace Common.Extensions
         }
 
 
-        public static Task<List<TReturn>> ConvertEach<T, TReturn>(this Task<List<T>> task, IMapper mapper)
+        public static Task<IList<TReturn>> ConvertEach<T, TReturn>(this Task<List<T>> task, IMapper mapper)
         {
             if (task == null)
                 throw new ArgumentNullException(nameof(task));
 
-            var tcs = new TaskCompletionSource<List<TReturn>>();
+            var tcs = new TaskCompletionSource<IList<TReturn>>();
 
             task.ContinueWith(t => tcs.TrySetCanceled(), TaskContinuationOptions.OnlyOnCanceled);
             task.ContinueWith(t =>
@@ -43,6 +43,4 @@ namespace Common.Extensions
             return tcs.Task;
         }
     }
-
-
 }

@@ -1,40 +1,52 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using AutoMapper;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Database.Models;
+using MediatR;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.Extensions.Options;
+using SimpleBookKeeping.Common.Commands;
+using SimpleBookKeeping.Common.DTOs;
+using SimpleBookKeeping.Common.Requests.Plans;
+using SimpleBookKeeping.Database;
+using SimpleBookKeeping.Database.Models;
+using SimpleBookKeeping.Settings;
 
 namespace SimpleBookKeeping.Controllers
 {
+    [Authorize]
     [Route("api/[controller]")]
     [ApiController]
     public class PlansController : ControllerBase
     {
-        private readonly DatabaseContext _context;
+        private readonly DatabaseContext context;
+        private readonly IMapper mapper;
+        private readonly IMediator mediator;
+        private AppSettings appSettings;
 
-        public PlansController(DatabaseContext context)
+        public PlansController(DatabaseContext context, IMapper mapper, IMediator mediator, IOptions<AppSettings> appSettings)
         {
-            _context = context;
+            this.context = context;
+            this.mapper = mapper;
+            this.mediator = mediator;
+            this.appSettings = appSettings.Value;
         }
 
         // GET: api/Plans
         [HttpGet]
-        public IEnumerable<Plan> GetPlans()
+        public async Task<IActionResult> GetPlans()
         {
-            return _context.Plans;
+            return Ok(await mediator.Send(new GetPlans()));
         }
 
         // GET: api/Plans/5
         [HttpGet("{id}")]
         public async Task<IActionResult> GetPlan([FromRoute] int id)
         {
-            if (!ModelState.IsValid)
-            {
-                return BadRequest(ModelState);
-            }
-
-            var plan = await _context.Plans.FindAsync(id);
+            var plan = await mediator.Send(new GetPlan(id));
 
             if (plan == null)
             {
@@ -46,27 +58,25 @@ namespace SimpleBookKeeping.Controllers
 
         // PUT: api/Plans/5
         [HttpPut("{id}")]
-        public async Task<IActionResult> PutPlan([FromRoute] int id, [FromBody] Plan plan)
+        public async Task<IActionResult> PutPlan([FromRoute] int id, [FromBody] PlanDto plan)
         {
             if (!ModelState.IsValid)
             {
                 return BadRequest(ModelState);
             }
 
-            if (id != plan.PlanId)
+            if (id != plan.Id)
             {
                 return BadRequest();
             }
 
-            _context.Entry(plan).State = EntityState.Modified;
-
             try
             {
-                await _context.SaveChangesAsync();
+                await mediator.Send(new AddPlan(plan));
             }
             catch (DbUpdateConcurrencyException)
             {
-                if (!PlanExists(id))
+                if (await mediator.Send(new GetPlan(id)) == null)
                 {
                     return NotFound();
                 }
@@ -81,17 +91,19 @@ namespace SimpleBookKeeping.Controllers
 
         // POST: api/Plans
         [HttpPost]
-        public async Task<IActionResult> PostPlan([FromBody] Plan plan)
+        public async Task<IActionResult> PostPlan([FromBody] PlanDto plan)
         {
             if (!ModelState.IsValid)
             {
                 return BadRequest(ModelState);
             }
 
-            _context.Plans.Add(plan);
-            await _context.SaveChangesAsync();
+            if (!await mediator.Send(new AddPlan(plan)))
+            {
+                return BadRequest();
+            }
 
-            return CreatedAtAction("GetPlan", new { id = plan.PlanId }, plan);
+            return Ok();
         }
 
         // DELETE: api/Plans/5
@@ -103,22 +115,17 @@ namespace SimpleBookKeeping.Controllers
                 return BadRequest(ModelState);
             }
 
-            var plan = await _context.Plans.FindAsync(id);
+            var plan = await context.Plans.FindAsync(id);
             if (plan == null)
             {
                 return NotFound();
             }
 
             plan.Deleted = true;
-            _context.Entry(plan).State = EntityState.Modified;
-            await _context.SaveChangesAsync();
+            context.Entry(plan).State = EntityState.Modified;
+            await context.SaveChangesAsync();
 
             return Ok(plan);
-        }
-
-        private bool PlanExists(int id)
-        {
-            return _context.Plans.Any(e => e.PlanId == id);
         }
     }
 }

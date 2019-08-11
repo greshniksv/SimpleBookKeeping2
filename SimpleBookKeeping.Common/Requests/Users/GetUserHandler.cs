@@ -1,10 +1,12 @@
 ﻿using System.Threading;
 using System.Threading.Tasks;
 using AutoMapper;
-using Common.DTOs;
-using Common.Extensions;
 using Database.Models;
 using MediatR;
+using SimpleBookKeeping.Common.DTOs;
+using SimpleBookKeeping.Common.Extensions;
+using SimpleBookKeeping.Database;
+using SimpleBookKeeping.Database.Models;
 
 namespace SimpleBookKeeping.Common.Requests.Users
 {
